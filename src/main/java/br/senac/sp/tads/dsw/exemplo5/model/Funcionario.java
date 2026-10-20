@@ -19,14 +19,11 @@ public class Funcionario {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank 
     private String nome;
 
     //formato ano-mês-dia (sem horário)
-    @PastOrPresent
     private LocalDate dataContratacao;
 
-    @NotNull 
     private Boolean trabalhoRemoto;
 
     @ManyToOne

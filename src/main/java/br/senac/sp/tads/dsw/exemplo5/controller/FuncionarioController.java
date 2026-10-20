@@ -2,6 +2,9 @@ package br.senac.sp.tads.dsw.exemplo5.controller;
 
 import java.util.List;
 
+import br.senac.sp.tads.dsw.exemplo5.dto.FuncionarioRequestDTO;
+import br.senac.sp.tads.dsw.exemplo5.dto.FuncionarioResponseDTO;
+import br.senac.sp.tads.dsw.exemplo5.service.FuncionarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,49 +25,37 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/funcionarios")
 public class FuncionarioController {
 
-    private final FuncionarioRepository repository;
+    private final FuncionarioService service;
 
-    public FuncionarioController(FuncionarioRepository repository) {
-        this.repository = repository;
+    public FuncionarioController(FuncionarioService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<Funcionario> listarTodos() {
-        return repository.findAll(); // Retorna 200 OK por padrão
+    public List<FuncionarioResponseDTO> listarTodos() {
+        return service.listarTodos();
     }
     
     @GetMapping("/{id}")
-    public Funcionario buscarPorId(@PathVariable Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Funcionario não encontrado"));
+    public FuncionarioResponseDTO buscarPorId(@PathVariable Long id) {
+        return service.buscarPorId(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Funcionario criar(@RequestBody @Valid Funcionario funcionario) {
-        return repository.save(funcionario);
+    public FuncionarioResponseDTO criar(@RequestBody @Valid FuncionarioRequestDTO dto) {
+        return service.criar(dto);
     }
     
     @PutMapping("/{id}")
-    public Funcionario atualizar(@PathVariable Long id,
-                            @RequestBody @Valid Funcionario funcionarioAtualizado) {
-    return repository.findById(id)
-            .map(funcionarioExistente -> {
-              funcionarioExistente.setNome(funcionarioAtualizado.getNome());
-              funcionarioExistente.setDataContratacao(funcionarioAtualizado.getDataContratacao());
-              funcionarioExistente.setTrabalhoRemoto(funcionarioAtualizado.getTrabalhoRemoto());
-              funcionarioExistente.setDepartamento(funcionarioAtualizado.getDepartamento());
-              return repository.save(funcionarioExistente);  
-            })
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public FuncionarioResponseDTO atualizar(@PathVariable Long id, @RequestBody @Valid FuncionarioRequestDTO dto) {
+        return service.atualizar(id, dto);
     }
+
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void apagar(@PathVariable Long id) {
-        if(!repository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        repository.deleteById(id);
+      service.apagar(id);
     }
 }
